@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cars</title>
+</head>
+<body>
+
+
+
+
+{% if request.user.is_authenticated %}
+  <li class="nav-item">
+      <a class="nav-link text-body small" href="#">Profil</a>
+  </li>
+  <li class="nav-item">
+      <a class="nav-link text-body small" href="{% url 'logout' %}">Chiqish</a>
+  </li>
+{% else %}
+  <li class="nav-item">
+      <a class="nav-link text-body small" href="#">Kirish</a>
+  </li>
+  <li class="nav-item">
+      <a class="nav-link text-body small" href="{% url 'registration' %}">
+          Ro'yxatdan o'tish</a>
+  </li>
+{% endif %}
+
+ <a href="{% url 'create' %}"><h1>create</h1></a>
+
+<div class="display">
+  {% for i in cars %}
+  <div class="card" style="width: 18rem;">
+    <a href="{% url 'car_detail' i.id %}">
+      <img src="{{ i.image.url }}" class="card-img-top" alt="..." style="width: 50%; height: auto;">
+    </a>
+      <div class="card-body">
+        <a href="{% url 'car_detail' i.id %}" ><h5 class="card-title">{{i.name}}</h5></a>
+        <h6 class="card-text">{{i.color}}</h6>
+        <h6 class="card-text">{{i.year}}</h6>
+
+        <a href="{% url 'delete_car' i.id %}"><h1>delete</h1></a>
+        <a href="{% url 'car_update' i.id %}"><h1>update</h1></a>
+      </div>
+    </div>   
+    <br>
+    <br>
+  {% endfor %}   
+  
+</div>
+
+
+
+
+</div>
+
+
+
+</body>
+</html>
+
