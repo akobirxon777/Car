@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm
-from django.contrib.auth import logout
+from django.contrib.auth import logout,authenticate, login
 
 def user_register(request):
     if request.method == 'POST':
@@ -43,4 +43,18 @@ def logout_(request):
    return redirect('car')
 
 
-   
+def user_login(request):
+   if request.method == 'POST':
+      username = request.POST['username']
+      password = request.POST['password']
+      
+      user = authenticate(username=username, password=password)
+      
+      if user is not None:
+         login(request, user)
+         return redirect('car')
+      else:
+         return render(request, 'login.html', 
+                  {'error_message': 'Bunday foydalanuvchi mavjud'})
+   else:
+      return render(request, 'login.html')   

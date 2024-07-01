@@ -47,5 +47,3 @@ def car_update(request, id):
 def register(request):
     return render(request, 'registration.html')
 
-def login(request):
-    return render(request, 'login.html')

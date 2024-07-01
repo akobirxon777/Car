@@ -9,5 +9,4 @@ urlpatterns = [
     path('car/create', car_create, name= 'create'),
     path('car/delete/<int:id>/', delete_car, name= 'delete_car'),
     path('car/update/<int:id>/', car_update, name="car_update"),
-
 ]

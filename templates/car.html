@@ -11,6 +11,7 @@
 
 
 {% if request.user.is_authenticated %}
+<h1>salom {{user.username }}</h1>
   <li class="nav-item">
       <a class="nav-link text-body small" href="#">Profil</a>
   </li>
@@ -19,7 +20,7 @@
   </li>
 {% else %}
   <li class="nav-item">
-      <a class="nav-link text-body small" href="#">Kirish</a>
+      <a class="nav-link text-body small" href="{% url 'login' %}">Kirish</a>
   </li>
   <li class="nav-item">
       <a class="nav-link text-body small" href="{% url 'registration' %}">
