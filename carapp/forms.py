@@ -6,3 +6,4 @@ class CarForm(forms.ModelForm):
     class Meta :
         model = Car
         fields= ['name', 'color', 'year', 'image']
+        

@@ -4,60 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+            width: 18rem;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .card-text {
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .like-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .like-button:hover {
+            background-color: #0056b3;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .update-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .update-button:hover {
+            background-color: #218838;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function likeCar(carId) {
+            fetch(`/like/${carId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'like' || data.status === 'unlike') {
+                    console.log(`Car ${carId} likes updated to ${data.like_count}`);
+                    document.getElementById(`likes-count-${carId}`).innerText = data.like_count;
+                } else {
+                    console.error('Unexpected response:', data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
 </head>
 <body>
+          {% if request.user.is_authenticated %}
+          <h1>Salom {{ user.username }}</h1>
+          <li class="nav-item">
+              <a class="nav-link text-body small" href="#">Profil</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link text-body small" href="{% url 'logout' %}">Chiqish</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+              <a class="nav-link text-body small" href="{% url 'login' %}">Kirish</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link text-body small" href="{% url 'registration' %}">Ro'yxatdan o'tish</a>
+          </li>
+        {% endif %}
+
+        <a href="{% url 'create' %}"><h1>Create</h1></a>
 
 
 
 
-{% if request.user.is_authenticated %}
-<h1>salom {{user.username }}</h1>
-  <li class="nav-item">
-      <a class="nav-link text-body small" href="#">Profil</a>
-  </li>
-  <li class="nav-item">
-      <a class="nav-link text-body small" href="{% url 'logout' %}">Chiqish</a>
-  </li>
-{% else %}
-  <li class="nav-item">
-      <a class="nav-link text-body small" href="{% url 'login' %}">Kirish</a>
-  </li>
-  <li class="nav-item">
-      <a class="nav-link text-body small" href="{% url 'registration' %}">
-          Ro'yxatdan o'tish</a>
-  </li>
-{% endif %}
 
- <a href="{% url 'create' %}"><h1>create</h1></a>
+    <div class="display">
+        {% for car in cars %}
+            <div class="card">
+              <a href="{% url 'delete_car' car.id %}">
+                <button class="delete-button">Delete</button>
+            </a>
+            <a href="{% url 'car_update' car.id %}">
+                <button class="update-button">Update</button>
+            </a>
 
-<div class="display">
-  {% for i in cars %}
-  <div class="card" style="width: 18rem;">
-    <a href="{% url 'car_detail' i.id %}">
-      <img src="{{ i.image.url }}" class="card-img-top" alt="..." style="width: 50%; height: auto;">
-    </a>
-      <div class="card-body">
-        <a href="{% url 'car_detail' i.id %}" ><h5 class="card-title">{{i.name}}</h5></a>
-        <h6 class="card-text">{{i.color}}</h6>
-        <h6 class="card-text">{{i.year}}</h6>
+                <a href="{% url 'car_detail' car.id %}">
+                    <img src="{{ car.image.url }}" alt="{{ car.name }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ car.name }}</h5>
+                    <p class="card-text">{{ car.color }}</p>
+                    <p class="card-text">{{ car.year }}</p>
+                    <p class="card-text">Likes: <span id="likes-count-{{ car.id }}">{{ car.like }}</span></p>
+                    <button class="like-button" onclick="likeCar({{ car.id }})">Like</button>
+                </div>
 
-        <a href="{% url 'delete_car' i.id %}"><h1>delete</h1></a>
-        <a href="{% url 'car_update' i.id %}"><h1>update</h1></a>
-      </div>
-    </div>   
-    <br>
-    <br>
-  {% endfor %}   
-  
-</div>
-
-
-
-
-</div>
-
-
-
+                    <a href="{% url 'cart' %}"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 22 22">
+                            <g id="Icon" transform="translate(-1524 -89)">
+                                <ellipse id="Ellipse_2" data-name="Ellipse 2" cx="0.909" cy="0.952"
+                                    rx="0.909" ry="0.952" transform="translate(1531.364 108.095)"
+                                    fill="none" stroke="#1a2224" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2" />
+                                <ellipse id="Ellipse_3" data-name="Ellipse 3" cx="0.909" cy="0.952"
+                                    rx="0.909" ry="0.952" transform="translate(1541.364 108.095)"
+                                    fill="none" stroke="#1a2224" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2" />
+                                <path id="Path_3" data-name="Path 3"
+                                    d="M1,1H4.636L7.073,13.752a1.84,1.84,0,0,0,1.818,1.533h8.836a1.84,1.84,0,0,0,1.818-1.533L21,5.762H5.545"
+                                    transform="translate(1524 89)" fill="none" stroke="#1a2224"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                            </g>
+                        </svg>
+                        <span class="cart">3</span>
+                    </a>
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
-

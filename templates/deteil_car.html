@@ -3,21 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cars</title>
+    <title>Car Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 18rem;
+            margin: 20px;
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .card-text {
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .like-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .like-button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+     <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function likeCar(carId) {
+            fetch(`/like/${carId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                } 
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'like' || data.status === 'unlike') {
+                    console.log(`Car ${carId} likes updated to ${data.like_count}`);
+                    document.getElementById(`likes-count-${carId}`).innerText = data.like_count;
+                } else {
+                    console.error('Unexpected response:', data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
 </head>
 <body>
-
-    <a href="{% url 'car' %}"><h1>axit</h1></a>
- 
-    <h2>{{ car.id }}</h2>
-
-    <h2>{{ car.name }}</h2>
-
-
-
-
-
-
-
+    <div class="card">
+        <img src="{{ car.image.url }}" alt="{{ car.name }}">
+        <div class="card-body">
+            <h5 class="card-title">{{ car.name }}</h5>
+            <p class="card-text">{{ car.color }}</p>
+            <p class="card-text">{{ car.year }}</p>
+            <p class="card-text">Likes: <span id="likes-count-{{ car.id }}">{{ car.like }}</span></p>
+            <button class="like-button" onclick="likeCar({{ car.id }})">Like</button>
+        </div>
+    </div>
+    <a href="{% url 'car' %}">Back to Car List</a>
+    <!-- Optional: Add update and delete buttons here if needed -->
 </body>
 </html>
